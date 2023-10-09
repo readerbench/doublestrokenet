@@ -1,0 +1,80 @@
+prep_data: False
+raw_data_path: "./KeyDatasets/clean/desk_users"
+
+new_finetune_data: False # changed the number of sequences per user
+
+
+pretrain:
+  run: False
+  checkpoint_dir: "/checkpoint_mob/pre/"
+
+  data:
+    path: "./KeyDatasets/mobile/pretrain"
+    user_cnt: 15_000 # number of users
+    max_seq_len_train: 75 # max sequence length of typing sequence
+    max_seq_len_test: 50 # max sequence length of typing sequence
+    train_size: 12
+    test_size: 3 # number of test samples /15
+    num_workers: 8 # number of workers for dataloader
+    corruption_probs: [.1, .8, .1] # probabilities of corruption [positive_rate, negative_rate, corrupt_rate]
+
+  train:
+    batch_size: 2048 # batch size
+    val_batch_size: 1 # DO NOT CHANGE
+    val_user_cnt: 1000 # number of users for validation
+    dataset_multiplier: 10 # number of times to repeat the dataset
+    max_epochs: 50 # number of epochs
+    check_val_every_n_epoch: 5
+    lr: 5e-4 # learning rate  
+
+  wandb:
+    use: True
+    project: pre_mob_15k
+    name: pre_mob_15k
+    key: "63faf0d0b57a1855a357085c29f385f911743759"
+
+finetune:
+  run: True
+  checkpoint: "" # set starting checkpoint for finetuning
+  checkpoint_dir: "/checkpoint_mob/fin/"
+
+  data:
+    path: "./KeyDatasets/desktop/finetune"
+    user_cnt: 1_000 # number of users
+    max_seq_len_train: 75 # max sequence length of typing sequence
+    max_seq_len_test: 50 # max sequence length of typing sequence
+    train_size: 5
+    test_size: 5 # the protocol in TypeNet uses 5 samples for testing
+    num_workers: 8 # number of workers for dataloader
+    corruption_probs: [.1, .8, .1] # probabilities of corruption [positive_rate, negative_rate, corrupt_rate]
+
+  train:
+    batch_size: 2048 # batch size
+    val_batch_size: 1 # DO NOT CHANGE
+    val_user_cnt: 1000 # number of users for validation
+    dataset_multiplier: 10 # number of times to repeat the dataset
+    max_epochs: 50 # number of epochs
+    check_val_every_n_epoch: 1
+    lr: 2e-4 # learning rate
+
+  wandb:
+    use: True
+    project: fine_mob_1k
+    name: fine_mob_1k
+    key: "" # set your wandb key here
+
+  extra_info: "emb reinit"
+
+model_params:
+  feat_cnt: 4
+  key_cnt: 256 # number of possible keys
+  key_emb_size: 256 # key embedding size
+  dim_ff: 512 # feed forward dimension
+  num_heads: 12 # number of heads in multi-head attention
+  num_layers: 12 # number of layers in transformer
+  trf_dropout: 0.2 # transformer dropout
+  causal_att: False # whether to use causal attention
+  use_user_emb: True # whether to use user embedding
+  mlp_before_trf: True # whether to use mlp before transformer
+
+
